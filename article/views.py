@@ -5,7 +5,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.http import JsonResponse, Http404
 from article.serializers import ArticleListSerializer, ArticleDetailSerializer
-from rest_framework.permissions import IsAdminUser
+# from rest_framework.permissions import IsAdminUser
+from article.permissions import IsAdminUserOrReadOnly
 
 from .models import Article
 
@@ -43,7 +44,7 @@ from .models import Article
 # 这段代码是上方函数的类视图改写
 # noinspection PyMethodMayBeStatic
 class ArticleListView(APIView):
-    permission_classes = [IsAdminUser]  # 仅限管理员访问
+    permission_classes = [IsAdminUserOrReadOnly]  # 判断权限，权限信息在permissions.py里面
 
     def get(self, request):
         articles = Article.objects.all()
@@ -61,6 +62,7 @@ class ArticleListView(APIView):
 # 用类的方式来写函数
 # noinspection PyMethodMayBeStatic
 class ArticleDetail(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
     # 这是一个普通的函数，获取某特定id的article
     def get_object(self, pk):
         try:
