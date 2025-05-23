@@ -1,31 +1,21 @@
+# articles/serializers.py
 from rest_framework import serializers
 from .models import Article
 from user_info.serializers import UserDescSerializer
 # 序列化：将后端存储的变量转换成json格式；逆序列化：将json转换成前端可以读取的格式
 
-# 更常用的方法，父类变成了 ModelSerializer
-# 文章列表，未点开文章时候
-# class ArticleListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Article
-#         fields = [
-#             'id',
-#             'title',
-#             'created',
-#             'author', # 作者信息
-#         ]
-#         read_only_fields = ['author']
-
-
 
 class ArticleListSerializer(serializers.ModelSerializer):
     # read_only 参数设置为只读
     author = UserDescSerializer(read_only=True)
+    url = serializers.HyperlinkedIdentityField(view_name="article:detail")
 
     class Meta:
+        # 指定这个类操作的是哪一个模型
         model = Article
         fields = [
-            'id',
+            # 'id',
+            'url',
             'title',
             'created',
             'author',
@@ -36,7 +26,7 @@ class ArticleListSerializer(serializers.ModelSerializer):
 # 文章的内容（点开文章之后）
 class ArticleDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Article
+        model = Article # 指定这个类操作的是哪一个模型
 
         # __all__是指所有字段
         fields = '__all__'

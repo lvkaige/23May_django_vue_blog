@@ -20,11 +20,11 @@ class ArticleListView(APIView):
 
     def get(self, request):
         articles = Article.objects.all()
-        serializer = ArticleListSerializer(articles, many=True)
+        serializer = ArticleListSerializer(articles, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = ArticleListSerializer(data=request.data)
+        serializer = ArticleListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             # serializer.save()
             self.perform_create(serializer) # 保存文章的时候，自动加上作者
