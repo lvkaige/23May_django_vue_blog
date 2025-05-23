@@ -1,29 +1,37 @@
 from rest_framework import serializers
 from .models import Article
+from user_info.serializers import UserDescSerializer
 # 序列化：将后端存储的变量转换成json格式；逆序列化：将json转换成前端可以读取的格式
-
-
-# 基础定义序列化文章列表的方法
-# class ArticleListSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(read_only=True)
-#     title = serializers.CharField(allow_blank=True, max_length=100)
-#     body = serializers.CharField(allow_blank=True)
-#     created = serializers.DateTimeField()
-#     updated = serializers.DateTimeField()
 
 # 更常用的方法，父类变成了 ModelSerializer
 # 文章列表，未点开文章时候
+# class ArticleListSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Article
+#         fields = [
+#             'id',
+#             'title',
+#             'created',
+#             'author', # 作者信息
+#         ]
+#         read_only_fields = ['author']
+
+
+
 class ArticleListSerializer(serializers.ModelSerializer):
+    # read_only 参数设置为只读
+    author = UserDescSerializer(read_only=True)
+
     class Meta:
         model = Article
         fields = [
             'id',
             'title',
             'created',
-            'author', # 作者信息
+            'author',
         ]
-        read_only_fields = ['author']
-
+        # 嵌套序列化器已经设置了只读，所以这个就不要了
+        # read_only_fields = ['author']
 
 # 文章的内容（点开文章之后）
 class ArticleDetailSerializer(serializers.ModelSerializer):
