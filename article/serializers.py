@@ -12,13 +12,21 @@ from .models import Article
 #     updated = serializers.DateTimeField()
 
 # 更常用的方法，父类变成了 ModelSerializer
+# 文章列表，未点开文章时候
 class ArticleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = [
             'id',
             'title',
-            'body',
             'created',
-            'updated',
         ]
+
+
+# 文章的内容（点开文章之后）
+class ArticleDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+
+        # __all__是指所有字段
+        fields = '__all__'

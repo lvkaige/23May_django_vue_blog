@@ -2,9 +2,12 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+from django.http import JsonResponse, Http404
+from article.serializers import ArticleListSerializer, ArticleDetailSerializer
+
 from .models import Article
-from article.serializers import ArticleListSerializer
-from django.http import JsonResponse
+
 
 # 较基础的方法
 # def article_list(request):
@@ -33,3 +36,45 @@ def article_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return None
+
+
+# 用类的方式来写函数
+class ArticleDetail(APIView):
+    """文章详情视图"""
+
+    # 这是一个普通的函数，获取某特定id的article
+    def get_object(self, pk):
+        """获取单个文章对象"""
+        try:
+            # pk 即主键，默认状态下就是 id
+            # 找到这个article后，将其return回去
+            return Article.objects.get(pk=pk)
+        except:
+            raise Http404
+
+    # 这里的get,put,delete并不是简单的函数，他们指的是request.method,即GET请求、PUT请求、DELETE请求
+    def get(self, request, pk):
+        article = self.get_object(pk)
+        # 将从数据库找到的数据序列化，以json形式返回给前端
+        serializer = ArticleDetailSerializer(article)
+        return Response(serializer.data)
+
+    # 修改article内容
+    def put(self, request, pk):
+        article = self.get_object(pk)
+
+        # 接收到数据，反序列化
+        serializer = ArticleDetailSerializer(article, data=request.data)
+
+        if serializer.is_valid():
+            # 数据合法的话，就保存到数据库
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # 删除article
+    def delete(self, request, pk):
+        article = self.get_object(pk)
+        article.delete()
+        # 删除成功后返回204
+        return Response(status=status.HTTP_204_NO_CONTENT)
