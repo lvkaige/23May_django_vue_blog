@@ -20,7 +20,9 @@ class ArticleListSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'created',
+            'author', # 作者信息
         ]
+        read_only_fields = ['author']
 
 
 # 文章的内容（点开文章之后）

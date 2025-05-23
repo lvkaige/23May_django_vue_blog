@@ -46,6 +46,10 @@ from .models import Article
 class ArticleListView(APIView):
     permission_classes = [IsAdminUserOrReadOnly]  # 判断权限，权限信息在permissions.py里面
 
+    # 创建article时候，加上作者信息
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     def get(self, request):
         articles = Article.objects.all()
         serializer = ArticleListSerializer(articles, many=True)
@@ -54,7 +58,8 @@ class ArticleListView(APIView):
     def post(self, request):
         serializer = ArticleListSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            # serializer.save()
+            self.perform_create(serializer) # 保存文章的时候，自动加上作者
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
